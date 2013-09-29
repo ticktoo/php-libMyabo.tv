@@ -201,7 +201,6 @@
 			
 			while(1 == 1)	{
 				$url 	 = "http://myabo.tv/search/?page=$page&order=startdate&order_type=ASC&term=$term&download=on&date=&genre=&station=$station&search_languages=1&quality=0".$c."&timerange=";
-				echo("# $url\n");
 				$request = "GET $url HTTP/1.0\n";
 				$request.= "Host: myabo.tv\n";
 				$request.= "Cookie: sessionid=".$this->authToken."\n\n";
