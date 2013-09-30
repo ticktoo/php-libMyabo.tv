@@ -186,7 +186,7 @@
 			return($ret);
 		}
 		
-		function search($term, $station = '', $cut = false)	{
+		function search($term, $station = '', $cut = false, $timestamp = 0)	{
 			$term = urlencode($term);
 			
 			if((int)$station == 0)	{
@@ -194,13 +194,26 @@
 			}
 			if($cut)	{
 				$c = "&cut=on";
+			} else {
+				$c = "";
+			}
+			
+			if($timestamp > 0)	{
+				$date = date("Y-m-d", $timestamp);
+				$tmfr = date("H:i", $timestamp);
+				$tmto = $tmfr;
+				$time = urlencode($tmfr)."-".urlencode($tmto);
+			} else {
+				$date = "";
+				$time = "";
 			}
 			
 			$ret = false;
 			$page = 1;
 			
 			while(1 == 1)	{
-				$url 	 = "http://myabo.tv/search/?page=$page&order=startdate&order_type=ASC&term=$term&download=on&date=&genre=&station=$station&search_languages=1&quality=0".$c."&timerange=";
+				$url 	 = "http://myabo.tv/search/?page=$page&order=startdate&order_type=ASC&term=$term&download=on&date=$date&genre=&station=$station&search_languages=1&quality=0".$c."&timerange=$time";
+				# echo("# $url\n");
 				$request = "GET $url HTTP/1.0\n";
 				$request.= "Host: myabo.tv\n";
 				$request.= "Cookie: sessionid=".$this->authToken."\n\n";
