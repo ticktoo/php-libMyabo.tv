@@ -1,0 +1,38 @@
+#!/usr/bin/php
+<?PHP
+	include("libmyabotv.php");
+	
+	$station = "";
+	$term	 = "";
+	$date	 = 0;
+	
+	// example usage
+	// clisearch -s Pro7 -d "13.08.2013 12:45" -q Simpsons
+
+	
+	for($i = 1; $i<= $argc; $i++)	{
+		$p = @$argv[$i];
+		$v = @$argv[$i+1];
+		
+		if($p == "-s" or $p == "--station")	{
+			$station = $v;
+		}
+		if($p == "-q" or $p == "--query")	{
+			$term = $v;
+		}
+		if($p == "-d" or $p == "--date")	{
+			$date = strtotime($v);
+		}
+	}
+	
+	
+	$myAbo = new MyAboTV();
+	$myAbo->authenticate("username", "password");
+	$shows = $myAbo->search($term, $station, false, (int)$date);	
+	
+	if($shows)	{
+		foreach((array)$shows as $show)	{
+			$file = $show->files[0];
+			echo($file->url);
+		}
+	}
