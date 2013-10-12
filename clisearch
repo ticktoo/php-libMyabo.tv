@@ -5,10 +5,11 @@
 	$station = "";
 	$term	 = "";
 	$date	 = 0;
-	
-	// example usage
-	// clisearch -s Pro7 -d "13.08.2013 12:45" -q Simpsons
-
+	$cut	 = false;
+	$profile = "ALL";
+	$listMode= true;
+	$debugAttributes = false;
+	$q 		= "";
 	
 	for($i = 1; $i<= $argc; $i++)	{
 		$p = @$argv[$i];
@@ -23,16 +24,64 @@
 		if($p == "-d" or $p == "--date")	{
 			$date = strtotime($v);
 		}
+		if($p == "-c" or $p == "--cut")		{
+			$cut = true;
+		}
+		if($p == "-p" or $p == "--profile")	{
+			$q = $v;
+		}
+		if($p == "-l" or $p == "--list")	{
+			$listMode = true;
+		}
+		if($p == "--download")	{
+			$listMode = false;
+			$download = true;
+		}
+		if($p == "--debug-attributes")	{
+			$debugAttributes = true;
+		}
+		
+		
 	}
 	
 	
 	$myAbo = new MyAboTV();
 	$myAbo->authenticate("username", "password");
-	$shows = $myAbo->search($term, $station, false, (int)$date);	
+	
+	// quality
+	
+	
+	$shows = $myAbo->search($term, $station, $cut, (int)$date, $q );	
 	
 	if($shows)	{
+		if($debugAttributes)	{
+			print_r(array_shift($shows));
+			die();
+		}	
+	
+	
 		foreach((array)$shows as $show)	{
 			$file = $show->files[0];
-			echo($file->url);
+			$fn = $show->safeTitle."-".$show->datetime.".".$file->extension;
+			
+			if($listMode)	{
+#				print_r($show);
+#				die();
+				echo($show->title."\t".$show->datetime."\t".$show->station."\t".$file->quality."\n");
+			} else {
+				echo("wget -nc -q -O \"/storage/media/TV-Archiv/$fn\" \"{$file->url}\"\n");
+			}
+			/*
+			
+			$fqfn = "/storage/media/TV-Archiv/Simpsons/$fn";
+			if(file_exists("$fqfn"))	{
+				echo("# [EXISTS] $fn\n");
+			} else {
+				echo("# [DOWNLOAD] $fn\n");
+				echo("wget -O \"/storage/media/TV-Archiv/Simpsons/$fn\" \"{$file->url}\"\n");
+			}			
+			*/
+			
 		}
-	}
+	}	
+	
